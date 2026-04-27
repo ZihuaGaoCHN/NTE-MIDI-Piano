@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../logic/midi_state.dart';
 import '../../l10n/app_strings.dart';
+import '../../keyboard_sim/keyboard_injector.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
