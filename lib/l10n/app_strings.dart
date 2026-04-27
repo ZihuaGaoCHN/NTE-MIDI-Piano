@@ -35,6 +35,10 @@ class AppStrings {
       'highRegister': '高音区 (C5-B5): Q W E R T Y U',
       'semiTones': '指定半音 (C#, Eb, F#, G#, Bb) 通过 Shift 和 Ctrl 组合触发。',
       'macOsWarning': '注意：在 macOS 上模拟按键可能需要辅助功能权限。请在 系统设置 → 隐私与安全性 → 辅助功能 中允许此应用。',
+      'permissionTitle': '权限请求',
+      'permissionMessage': '在 macOS 上模拟按键需要辅助功能权限。是否现在打开系统设置进行授权？\n\n注意：如果之前已授权但仍无法运行，请在设置中先删除本应用再重新添加并勾选。',
+      'openSettings': '去授权',
+      'cancel': '取消',
     },
     'en': {
       'home': 'Home',
@@ -68,6 +72,10 @@ class AppStrings {
       'highRegister': 'High Register (C5-B5): Q W E R T Y U',
       'semiTones': 'Semitones (C#, Eb, F#, G#, Bb) are triggered by combining Shift and Ctrl.',
       'macOsWarning': 'Note: Key simulation on macOS may require Accessibility permissions. Please allow this app in System Settings → Privacy & Security → Accessibility.',
+      'permissionTitle': 'Permission Required',
+      'permissionMessage': 'Key simulation on macOS requires Accessibility permission. Would you like to open System Settings to authorize it now?\n\nNote: If previously authorized but still not working, please remove the app from settings and add it back.',
+      'openSettings': 'Open Settings',
+      'cancel': 'Cancel',
     }
   };
 

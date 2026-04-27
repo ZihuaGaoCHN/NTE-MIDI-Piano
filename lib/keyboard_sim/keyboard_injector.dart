@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'keyboard_mapper.dart';
 
 class Win32KeyboardInjector {
@@ -87,8 +88,9 @@ class MacOsKeyboardInjector {
 
   static late final Pointer Function(int) _cgEventSourceCreate;
   static late final void Function(Pointer, int) _cgEventSetType;
+  static late final bool Function() _axIsProcessTrusted;
   static bool _initialized = false;
-
+ 
   static void _init() {
     if (_initialized) return;
     _coreGraphics = DynamicLibrary.open('/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices');
@@ -110,7 +112,23 @@ class MacOsKeyboardInjector {
     _cfRelease = _coreGraphics.lookupFunction<
         Void Function(Pointer),
         void Function(Pointer)>('CFRelease');
+    _axIsProcessTrusted = _coreGraphics.lookupFunction<
+        Bool Function(),
+        bool Function()>('AXIsProcessTrusted');
     _initialized = true;
+  }
+
+  static bool checkAccessibilityPermission() {
+    if (!Platform.isMacOS) return true;
+    _init();
+    return _axIsProcessTrusted();
+  }
+
+  static Future<void> openAccessibilitySettings() async {
+    final url = Uri.parse('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
   }
 
   static final Map<PhysicalKeyboardKey, int> _macKeyCodes = {
