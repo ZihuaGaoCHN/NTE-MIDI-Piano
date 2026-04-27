@@ -1,0 +1,48 @@
+PODS:
+  - flutter_midi_command (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - keypress_simulator_macos (0.0.1):
+    - FlutterMacOS
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - universal_ble (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - url_launcher_macos (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - flutter_midi_command (from `Flutter/ephemeral/.symlinks/plugins/flutter_midi_command/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - keypress_simulator_macos (from `Flutter/ephemeral/.symlinks/plugins/keypress_simulator_macos/macos`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - universal_ble (from `Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin`)
+  - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
+
+EXTERNAL SOURCES:
+  flutter_midi_command:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_midi_command/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  keypress_simulator_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/keypress_simulator_macos/macos
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
+  universal_ble:
+    :path: Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin
+  url_launcher_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
+
+SPEC CHECKSUMS:
+  flutter_midi_command: c7517347a1acc8e4c7d4e9fa9809b3e87bbfd2b8
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  keypress_simulator_macos: b5c87294b03ab5a2e743873a7dabe1ff5589129d
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+  universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
+  url_launcher_macos: f87a979182d112f911de6820aefddaf56ee9fbfd
+
+PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
+
+COCOAPODS: 1.16.2

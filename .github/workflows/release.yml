@@ -1,0 +1,88 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on version tags like v1.0.0
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        include:
+          - os: macos-latest
+            output_name: NTE-MIDI-Piano-macOS.dmg
+            build_cmd: flutter build macos --release
+            artifact_path: build/macos/Build/Products/Release/NTE-MIDI-Piano.app
+          - os: windows-latest
+            output_name: NTE-MIDI-Piano-Windows.zip
+            build_cmd: flutter build windows --release
+            artifact_path: build/windows/x64/runner/Release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Application
+        run: ${{ matrix.build_cmd }}
+
+      - name: Prepare macOS Artifact (DMG)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "NTE-MIDI-Piano" \
+            --window-pos 200 120 \
+            --window-size 500 300 \
+            --icon-size 100 \
+            --icon "NTE-MIDI-Piano.app" 150 150 \
+            --hide-extension "NTE-MIDI-Piano.app" \
+            --app-drop-link 350 150 \
+            "${{ matrix.output_name }}" \
+            "build/macos/Build/Products/Release/NTE-MIDI-Piano.app"
+
+      - name: Prepare Windows Artifact
+        if: matrix.os == 'windows-latest'
+        run: |
+          powershell Compress-Archive -Path ${{ matrix.artifact_path }}/* -DestinationPath ${{ matrix.output_name }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: ${{ matrix.output_name }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            macos-latest-build/*.dmg
+            windows-latest-build/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
