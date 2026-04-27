@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   context: context,
                   icon: Icons.info_outline,
                   title: AppStrings.get(context, 'about'),
-                  subtitle: '1.0.0',
+                  subtitle: '1.0.1',
                   onTap: () => Navigator.of(context).pushNamed('about'),
                 ),
               ],
@@ -221,29 +221,33 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: midiState.devices.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(AppStrings.get(context, 'noSignal'), textAlign: TextAlign.center),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: midiState.devices.length,
-                    itemBuilder: (context, index) {
-                      final device = midiState.devices[index];
-                      return RadioListTile<MidiDevice>(
-                        title: Text(device.name),
-                        value: device,
-                        groupValue: midiState.selectedDevice,
-                        onChanged: (value) {
-                          if (value != null) midiState.selectDevice(value);
-                          Navigator.of(dialogContext).pop();
+          content: Consumer<MidiState>(
+            builder: (context, state, child) {
+              return SizedBox(
+                width: double.maxFinite,
+                child: state.devices.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(AppStrings.get(context, 'noSignal'), textAlign: TextAlign.center),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: state.devices.length,
+                        itemBuilder: (context, index) {
+                          final device = state.devices[index];
+                          return RadioListTile<MidiDevice>(
+                            title: Text(device.name),
+                            value: device,
+                            groupValue: state.selectedDevice,
+                            onChanged: (value) {
+                              if (value != null) state.selectDevice(value);
+                              Navigator.of(dialogContext).pop();
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
+                      ),
+              );
+            },
           ),
         );
       },

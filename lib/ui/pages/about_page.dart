@@ -72,7 +72,7 @@ class AboutPage extends StatelessWidget {
                       _buildInfoItem(
                         context: context,
                         title: AppStrings.get(context, 'version'),
-                        value: '1.0.0',
+                        value: '1.0.1',
                       ),
                       const Divider(height: 1),
                       _buildInfoItem(
