@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'logic/midi_state.dart';
 import 'logic/locale_state.dart';
@@ -23,8 +25,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'NTE-MIDI-Piano',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('zh', 'CN'),
+        Locale('en', 'US'),
+      ],
       theme: ThemeData(
         fontFamily: Platform.isWindows ? 'Microsoft YaHei' : null,
+        fontFamilyFallback: Platform.isWindows ? ['Segoe UI', 'Arial', 'sans-serif'] : null,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.cyan,
           brightness: Brightness.light,
@@ -33,6 +45,7 @@ class MyApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         fontFamily: Platform.isWindows ? 'Microsoft YaHei' : null,
+        fontFamilyFallback: Platform.isWindows ? ['Segoe UI', 'Arial', 'sans-serif'] : null,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.cyan,
           brightness: Brightness.dark,

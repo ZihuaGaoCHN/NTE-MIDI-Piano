@@ -2,52 +2,10 @@ import 'dart:io';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
+import 'package:win32/win32.dart';
 import 'keyboard_mapper.dart';
 
-// Windows-specific FFI structures and constants
-const int INPUT_KEYBOARD = 1;
-const int KEYEVENTF_SCANCODE = 0x0008;
-const int KEYEVENTF_KEYUP = 0x0002;
-
-final class KEYBDINPUT extends Struct {
-  @Uint16()
-  external int wVk;
-  @Uint16()
-  external int wScan;
-  @Uint32()
-  external int dwFlags;
-  @Uint32()
-  external int time;
-  @IntPtr()
-  external int dwExtraInfo;
-}
-
-// Using a struct for INPUT instead of a union for simplicity, 
-// as we only use keyboard input and know the memory layout on x64.
-final class INPUT extends Struct {
-  @Uint32()
-  external int type;
-  @Uint32() // Padding for x64 alignment
-  external int padding;
-  external KEYBDINPUT ki;
-}
-
 class Win32KeyboardInjector {
-  static late final DynamicLibrary _user32;
-  static late final int Function(int, Pointer<INPUT>, int) _sendInput;
-  static bool _initialized = false;
-
-  static void _init() {
-    if (_initialized) return;
-    if (Platform.isWindows) {
-      _user32 = DynamicLibrary.open('user32.dll');
-      _sendInput = _user32.lookupFunction<
-          Uint32 Function(Uint32, Pointer<INPUT>, Int32),
-          int Function(int, Pointer<INPUT>, int)>('SendInput');
-      _initialized = true;
-    }
-  }
-
   static final Map<PhysicalKeyboardKey, int> _winScanCodes = {
     PhysicalKeyboardKey.keyQ: 0x10,
     PhysicalKeyboardKey.keyW: 0x11,
@@ -74,20 +32,48 @@ class Win32KeyboardInjector {
     PhysicalKeyboardKey.controlLeft: 0x1D,
   };
 
+  static final Map<PhysicalKeyboardKey, int> _winVkCodes = {
+    PhysicalKeyboardKey.keyQ: 0x51,
+    PhysicalKeyboardKey.keyW: 0x57,
+    PhysicalKeyboardKey.keyE: 0x45,
+    PhysicalKeyboardKey.keyR: 0x52,
+    PhysicalKeyboardKey.keyT: 0x54,
+    PhysicalKeyboardKey.keyY: 0x59,
+    PhysicalKeyboardKey.keyU: 0x55,
+    PhysicalKeyboardKey.keyA: 0x41,
+    PhysicalKeyboardKey.keyS: 0x53,
+    PhysicalKeyboardKey.keyD: 0x44,
+    PhysicalKeyboardKey.keyF: 0x46,
+    PhysicalKeyboardKey.keyG: 0x47,
+    PhysicalKeyboardKey.keyH: 0x48,
+    PhysicalKeyboardKey.keyJ: 0x4A,
+    PhysicalKeyboardKey.keyZ: 0x5A,
+    PhysicalKeyboardKey.keyX: 0x58,
+    PhysicalKeyboardKey.keyC: 0x43,
+    PhysicalKeyboardKey.keyV: 0x56,
+    PhysicalKeyboardKey.keyB: 0x42,
+    PhysicalKeyboardKey.keyN: 0x4E,
+    PhysicalKeyboardKey.keyM: 0x4D,
+    PhysicalKeyboardKey.shiftLeft: VK_SHIFT,
+    PhysicalKeyboardKey.controlLeft: VK_CONTROL,
+  };
+
   static void sendKey(PhysicalKeyboardKey key, bool isDown) {
-    _init();
+    if (!Platform.isWindows) return;
+    
     final scanCode = _winScanCodes[key] ?? 0;
+    final vkCode = _winVkCodes[key] ?? 0;
     if (scanCode == 0) return;
 
     final input = calloc<INPUT>();
     input.ref.type = INPUT_KEYBOARD;
-    input.ref.ki.wVk = 0;
+    input.ref.ki.wVk = vkCode;
     input.ref.ki.wScan = scanCode;
     input.ref.ki.dwFlags = KEYEVENTF_SCANCODE | (isDown ? 0 : KEYEVENTF_KEYUP);
     input.ref.ki.time = 0;
     input.ref.ki.dwExtraInfo = 0;
 
-    _sendInput(1, input, sizeOf<INPUT>());
+    SendInput(1, input, sizeOf<INPUT>());
     calloc.free(input);
   }
 }
