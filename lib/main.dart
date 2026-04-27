@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NTE-MIDI-Piano',
       theme: ThemeData(
+        fontFamily: Platform.isWindows ? 'Microsoft YaHei' : null,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.cyan,
           brightness: Brightness.light,
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
+        fontFamily: Platform.isWindows ? 'Microsoft YaHei' : null,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.cyan,
           brightness: Brightness.dark,

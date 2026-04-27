@@ -1,8 +1,96 @@
 import 'dart:io';
 import 'dart:ffi';
-import 'package:keypress_simulator/keypress_simulator.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'keyboard_mapper.dart';
+
+// Windows-specific FFI structures and constants
+const int INPUT_KEYBOARD = 1;
+const int KEYEVENTF_SCANCODE = 0x0008;
+const int KEYEVENTF_KEYUP = 0x0002;
+
+final class KEYBDINPUT extends Struct {
+  @Uint16()
+  external int wVk;
+  @Uint16()
+  external int wScan;
+  @Uint32()
+  external int dwFlags;
+  @Uint32()
+  external int time;
+  @IntPtr()
+  external int dwExtraInfo;
+}
+
+// Using a struct for INPUT instead of a union for simplicity, 
+// as we only use keyboard input and know the memory layout on x64.
+final class INPUT extends Struct {
+  @Uint32()
+  external int type;
+  @Uint32() // Padding for x64 alignment
+  external int padding;
+  external KEYBDINPUT ki;
+}
+
+class Win32KeyboardInjector {
+  static late final DynamicLibrary _user32;
+  static late final int Function(int, Pointer<INPUT>, int) _sendInput;
+  static bool _initialized = false;
+
+  static void _init() {
+    if (_initialized) return;
+    if (Platform.isWindows) {
+      _user32 = DynamicLibrary.open('user32.dll');
+      _sendInput = _user32.lookupFunction<
+          Uint32 Function(Uint32, Pointer<INPUT>, Int32),
+          int Function(int, Pointer<INPUT>, int)>('SendInput');
+      _initialized = true;
+    }
+  }
+
+  static final Map<PhysicalKeyboardKey, int> _winScanCodes = {
+    PhysicalKeyboardKey.keyQ: 0x10,
+    PhysicalKeyboardKey.keyW: 0x11,
+    PhysicalKeyboardKey.keyE: 0x12,
+    PhysicalKeyboardKey.keyR: 0x13,
+    PhysicalKeyboardKey.keyT: 0x14,
+    PhysicalKeyboardKey.keyY: 0x15,
+    PhysicalKeyboardKey.keyU: 0x16,
+    PhysicalKeyboardKey.keyA: 0x1E,
+    PhysicalKeyboardKey.keyS: 0x1F,
+    PhysicalKeyboardKey.keyD: 0x20,
+    PhysicalKeyboardKey.keyF: 0x21,
+    PhysicalKeyboardKey.keyG: 0x22,
+    PhysicalKeyboardKey.keyH: 0x23,
+    PhysicalKeyboardKey.keyJ: 0x24,
+    PhysicalKeyboardKey.keyZ: 0x2C,
+    PhysicalKeyboardKey.keyX: 0x2D,
+    PhysicalKeyboardKey.keyC: 0x2E,
+    PhysicalKeyboardKey.keyV: 0x2F,
+    PhysicalKeyboardKey.keyB: 0x30,
+    PhysicalKeyboardKey.keyN: 0x31,
+    PhysicalKeyboardKey.keyM: 0x32,
+    PhysicalKeyboardKey.shiftLeft: 0x2A,
+    PhysicalKeyboardKey.controlLeft: 0x1D,
+  };
+
+  static void sendKey(PhysicalKeyboardKey key, bool isDown) {
+    _init();
+    final scanCode = _winScanCodes[key] ?? 0;
+    if (scanCode == 0) return;
+
+    final input = calloc<INPUT>();
+    input.ref.type = INPUT_KEYBOARD;
+    input.ref.ki.wVk = 0;
+    input.ref.ki.wScan = scanCode;
+    input.ref.ki.dwFlags = KEYEVENTF_SCANCODE | (isDown ? 0 : KEYEVENTF_KEYUP);
+    input.ref.ki.time = 0;
+    input.ref.ki.dwExtraInfo = 0;
+
+    _sendInput(1, input, sizeOf<INPUT>());
+    calloc.free(input);
+  }
+}
 
 class MacOsKeyboardInjector {
   static late final DynamicLibrary _coreGraphics;
@@ -113,16 +201,16 @@ class KeyboardInjector {
           await Future.delayed(const Duration(milliseconds: 36));
         }
         MacOsKeyboardInjector.postEvent(action.key, true, action.modifiers);
-      } else {
+      } else if (Platform.isWindows) {
         if (action.modifiers.contains(ModifierKey.shiftModifier)) {
-          await keyPressSimulator.simulateKeyDown(PhysicalKeyboardKey.shiftLeft);
+          Win32KeyboardInjector.sendKey(PhysicalKeyboardKey.shiftLeft, true);
           await Future.delayed(const Duration(milliseconds: 36));
         }
         if (action.modifiers.contains(ModifierKey.controlModifier)) {
-          await keyPressSimulator.simulateKeyDown(PhysicalKeyboardKey.controlLeft);
+          Win32KeyboardInjector.sendKey(PhysicalKeyboardKey.controlLeft, true);
           await Future.delayed(const Duration(milliseconds: 36));
         }
-        await keyPressSimulator.simulateKeyDown(action.key);
+        Win32KeyboardInjector.sendKey(action.key, true);
       }
     }
   }
@@ -141,14 +229,14 @@ class KeyboardInjector {
         if (action.modifiers.contains(ModifierKey.shiftModifier)) {
           MacOsKeyboardInjector.postEvent(PhysicalKeyboardKey.shiftLeft, false, []);
         }
-      } else {
-        await keyPressSimulator.simulateKeyUp(action.key);
+      } else if (Platform.isWindows) {
+        Win32KeyboardInjector.sendKey(action.key, false);
         await Future.delayed(const Duration(milliseconds: 36));
         if (action.modifiers.contains(ModifierKey.controlModifier)) {
-          await keyPressSimulator.simulateKeyUp(PhysicalKeyboardKey.controlLeft);
+          Win32KeyboardInjector.sendKey(PhysicalKeyboardKey.controlLeft, false);
         }
         if (action.modifiers.contains(ModifierKey.shiftModifier)) {
-          await keyPressSimulator.simulateKeyUp(PhysicalKeyboardKey.shiftLeft);
+          Win32KeyboardInjector.sendKey(PhysicalKeyboardKey.shiftLeft, false);
         }
       }
     }
