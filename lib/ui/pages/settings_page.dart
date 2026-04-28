@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   context: context,
                   icon: Icons.info_outline,
                   title: AppStrings.get(context, 'about'),
-                  subtitle: '1.0.2',
+                  subtitle: '1.0.3',
                   onTap: () => Navigator.of(context).pushNamed('about'),
                 ),
               ],

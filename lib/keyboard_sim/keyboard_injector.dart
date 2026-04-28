@@ -205,6 +205,17 @@ class KeyboardInjector {
           await Future.delayed(const Duration(milliseconds: 36));
         }
         MacOsKeyboardInjector.postEvent(action.key, true, action.modifiers);
+        
+        // Immediately release to avoid modifier conflicts
+        await Future.delayed(const Duration(milliseconds: 36));
+        MacOsKeyboardInjector.postEvent(action.key, false, action.modifiers);
+        await Future.delayed(const Duration(milliseconds: 36));
+        if (action.modifiers.contains(ModifierKey.controlModifier)) {
+          MacOsKeyboardInjector.postEvent(PhysicalKeyboardKey.controlLeft, false, []);
+        }
+        if (action.modifiers.contains(ModifierKey.shiftModifier)) {
+          MacOsKeyboardInjector.postEvent(PhysicalKeyboardKey.shiftLeft, false, []);
+        }
       } else if (Platform.isWindows) {
         if (action.modifiers.contains(ModifierKey.shiftModifier)) {
           Win32KeyboardInjector.sendKey(PhysicalKeyboardKey.shiftLeft, true);
@@ -215,25 +226,9 @@ class KeyboardInjector {
           await Future.delayed(const Duration(milliseconds: 36));
         }
         Win32KeyboardInjector.sendKey(action.key, true);
-      }
-    }
-  }
-
-  static Future<void> releaseNoteUp(int midiNote) async {
-    final action = KeyboardMapper.getActionForNote(midiNote);
-    if (action != null) {
-      print('MIDI Note $midiNote Up -> modifiers: ${action.modifiers}');
-      
-      if (Platform.isMacOS) {
-        MacOsKeyboardInjector.postEvent(action.key, false, action.modifiers);
+        
+        // Immediately release to avoid modifier conflicts
         await Future.delayed(const Duration(milliseconds: 36));
-        if (action.modifiers.contains(ModifierKey.controlModifier)) {
-          MacOsKeyboardInjector.postEvent(PhysicalKeyboardKey.controlLeft, false, []);
-        }
-        if (action.modifiers.contains(ModifierKey.shiftModifier)) {
-          MacOsKeyboardInjector.postEvent(PhysicalKeyboardKey.shiftLeft, false, []);
-        }
-      } else if (Platform.isWindows) {
         Win32KeyboardInjector.sendKey(action.key, false);
         await Future.delayed(const Duration(milliseconds: 36));
         if (action.modifiers.contains(ModifierKey.controlModifier)) {
@@ -244,5 +239,10 @@ class KeyboardInjector {
         }
       }
     }
+  }
+
+  static Future<void> releaseNoteUp(int midiNote) async {
+    // Left intentionally empty because release is now immediately handled 
+    // inside pressNoteDown to prevent modifier key conflicts.
   }
 }
