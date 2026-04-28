@@ -11,5 +11,5 @@ A tool that allows you to use a MIDI keyboard to play the piano in Neverness To 
 Connect a MIDI device, such as a MIDI keyboard, digital piano or synthesizer via USB, then select a MIDI device in Settings, then turn on the switch in Home.
 
 ## 关于 | About
-本软件 100% vibe coding 而成，如果有 bug ，请提交issue。我会尝试修复。\
+本软件 100% Vibe Coding 而成，如果有 bug ，请提交 issue。我会尝试修复。\
 This project was developed entirely using Vibe Coding. If you find any bugs, please create an issue. I'll try to fix it.
