@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   context: context,
                   icon: Icons.info_outline,
                   title: AppStrings.get(context, 'about'),
-                  subtitle: '1.0.1',
+                  subtitle: '1.0.2',
                   onTap: () => Navigator.of(context).pushNamed('about'),
                 ),
               ],
@@ -174,6 +174,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: Text(AppStrings.get(context, 'systemDefault')),
                   value: AppLanguage.system,
                   groupValue: localeState.selectedLanguage,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   onChanged: (value) {
                     if (value != null) localeState.setLanguage(value);
                     Navigator.of(dialogContext).pop();
@@ -183,6 +184,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: const Text('English'),
                   value: AppLanguage.en,
                   groupValue: localeState.selectedLanguage,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   onChanged: (value) {
                     if (value != null) localeState.setLanguage(value);
                     Navigator.of(dialogContext).pop();
@@ -192,6 +194,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: const Text('简体中文'),
                   value: AppLanguage.zh,
                   groupValue: localeState.selectedLanguage,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   onChanged: (value) {
                     if (value != null) localeState.setLanguage(value);
                     Navigator.of(dialogContext).pop();
@@ -239,6 +242,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             title: Text(device.name),
                             value: device,
                             groupValue: state.selectedDevice,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             onChanged: (value) {
                               if (value != null) state.selectDevice(value);
                               Navigator.of(dialogContext).pop();

@@ -18,17 +18,29 @@ jobs:
         os: [macos-latest, windows-latest]
         include:
           - os: macos-latest
-            output_name: NTE-MIDI-Piano-macOS.dmg
+            suffix: macOS.dmg
             build_cmd: flutter build macos --release
             artifact_path: build/macos/Build/Products/Release/NTE-MIDI-Piano.app
           - os: windows-latest
-            output_name: NTE-MIDI-Piano-Windows.zip
+            suffix: Windows.zip
             build_cmd: flutter build windows --release
             artifact_path: build/windows/x64/runner/Release
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Get Version
+        id: get_version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF_NAME#v}
+          else
+            VERSION="latest"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "OUTPUT_NAME=NTE-MIDI-Piano-${VERSION}-${{ matrix.suffix }}" >> $GITHUB_ENV
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -54,19 +66,19 @@ jobs:
             --icon "NTE-MIDI-Piano.app" 150 150 \
             --hide-extension "NTE-MIDI-Piano.app" \
             --app-drop-link 350 150 \
-            "${{ matrix.output_name }}" \
+            "${{ env.OUTPUT_NAME }}" \
             "build/macos/Build/Products/Release/NTE-MIDI-Piano.app"
 
       - name: Prepare Windows Artifact
         if: matrix.os == 'windows-latest'
         run: |
-          powershell Compress-Archive -Path ${{ matrix.artifact_path }}/* -DestinationPath ${{ matrix.output_name }}
+          powershell Compress-Archive -Path ${{ matrix.artifact_path }}/* -DestinationPath ${{ env.OUTPUT_NAME }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-build
-          path: ${{ matrix.output_name }}
+          path: ${{ env.OUTPUT_NAME }}
 
   release:
     name: Create Release
