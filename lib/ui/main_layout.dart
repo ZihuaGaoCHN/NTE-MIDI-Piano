@@ -22,7 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3), // Adaptive sidebar background
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow, // Adaptive sidebar background
       body: Row(
         children: [
           Padding(

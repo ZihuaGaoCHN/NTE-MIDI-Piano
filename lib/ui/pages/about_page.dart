@@ -67,12 +67,13 @@ class AboutPage extends StatelessWidget {
                     side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
                       _buildInfoItem(
                         context: context,
                         title: AppStrings.get(context, 'version'),
-                        value: '1.0.1',
+                        value: '1.0.2',
                       ),
                       const Divider(height: 1),
                       _buildInfoItem(
@@ -90,6 +91,7 @@ class AboutPage extends StatelessWidget {
                     side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
                       _buildLinkItem(
@@ -107,14 +109,6 @@ class AboutPage extends StatelessWidget {
                         iconSize: 18,
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    AppStrings.get(context, 'macOsWarning'),
-                    style: const TextStyle(color: Colors.orange, fontSize: 13, height: 1.5),
                   ),
                 ),
                 const SizedBox(height: 48),
